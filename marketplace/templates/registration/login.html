@@ -1,0 +1,25 @@
+{% extends 'marketplace/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 p-4 rounded-4">
+            <h3 class="fw-bold text-center mb-4">Iniciar sesión</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Usuario</label>
+                    <input type="text" name="username" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Contraseña</label>
+                    <input type="password" name="password" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-warning w-100 fw-bold rounded-pill">Iniciar sesión</button>
+            </form>
+            <hr>
+            <p class="small text-center">¿Eres nuevo en Framazon? <a href="{% url 'marketplace:registro' %}">Crea tu cuenta</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

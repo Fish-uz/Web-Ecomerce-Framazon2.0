@@ -1,0 +1,56 @@
+{% extends 'marketplace/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row bg-white p-4 rounded-3 shadow-sm">
+        <div class="col-md-5 text-center border-end">
+            <img src="{{ producto.imagen_principal.url }}" id="mainImg" class="img-fluid mb-3" style="max-height: 400px; object-fit: contain;">
+            
+            <div class="d-flex justify-content-center gap-2 mt-2">
+                <img src="{{ producto.imagen_principal.url }}" class="img-thumbnail thumb-gallery" style="width: 60px; cursor: pointer;" onclick="changeImg(this.src)">
+                {% for img in imagenes_extra %}
+                    <img src="{{ img.imagen.url }}" class="img-thumbnail thumb-gallery" style="width: 60px; cursor: pointer;" onclick="changeImg(this.src)">
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-7 ps-md-5">
+            <h2 class="fw-bold">{{ producto.nombre }}</h2>
+            <p class="text-muted small">Vendedor: <span class="text-info">{{ producto.vendedor.username }}</span></p>
+            <hr>
+            
+            <h3 class="text-danger fw-bold">${{ producto.precio }}</h3>
+            <p class="mt-4">{{ producto.descripcion }}</p>
+            
+            <div class="card p-3 mt-4 border-secondary bg-light" style="max-width: 300px;">
+                <h6 class="fw-bold {% if producto.stock > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if producto.stock > 0 %}En stock{% else %}Agotado{% endif %}
+                </h6>
+                <p class="small mb-3">Vendido por <strong>{{ producto.vendedor.username }}</strong></p>
+                
+                {% if user.is_authenticated %}
+                    {% if user != producto.vendedor %}
+                        <a href="{% url 'marketplace:iniciar_contacto' producto.id %}" class="btn btn-warning w-100 rounded-pill fw-bold mb-2 shadow-sm">
+                            Comprar / Contactar
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary w-100 rounded-pill fw-bold" disabled>Es tu producto</button>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-warning w-100 rounded-pill fw-bold">Ingresa para comprar</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function changeImg(src) {
+    document.getElementById('mainImg').src = src;
+}
+</script>
+
+<style>
+    .thumb-gallery:hover { border-color: #ff9900 !important; }
+</style>
+{% endblock %}

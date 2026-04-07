@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framazon | Marketplace</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eaeded; }
+        .navbar-amazon { background-color: #131921; min-height: 60px; }
+        .footer-amazon { background-color: #131921; color: white; }
+        
+        /* Logo corregido: F en blanco, R en naranja */
+        .navbar-brand-framazon {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            color: white !important;
+            text-decoration: none;
+        }
+        .logo-orange { color: #ff9900; }
+
+        .btn-amazon-gold { background-color: #f0c14b; border-color: #a88734; color: #111; font-weight: bold; }
+        .nav-link { color: white !important; font-size: 13px; }
+        .nav-link:hover { color: #febd69 !important; }
+        .line-height-1 { line-height: 1.2; }
+    </style>
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<nav class="navbar navbar-expand-lg navbar-dark p-0" style="background-color: #131921; min-height: 60px;">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand fw-bold me-4" href="{% url 'marketplace:index' %}" style="font-size: 20px; letter-spacing: -1px; color: white !important;">
+            FRAMAZON<span style="color: #ff9900;"></span>
+        </a>
+
+        <div class="d-flex flex-grow-1 justify-content-center mx-4">
+            <form action="{% url 'marketplace:index' %}" method="GET" class="input-group input-group-sm" style="max-width: 500px;">
+                <input type="text" name="q" class="form-control border-0 py-2" placeholder="Buscar productos..." style="border-radius: 4px 0 0 4px;" value="{{ request.GET.q }}">
+                <button class="btn border-0 px-3" type="submit" style="background-color: #febd69; border-radius: 0 4px 4px 0;">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="d-flex align-items-center gap-4 ms-auto" style="font-size: 13px;">
+            
+            <div class="nav-item">
+                <a class="nav-link text-white fw-bold d-flex align-items-center" href="#">
+                    <i class="bi bi-globe me-1"></i> ES <i class="bi bi-caret-down-fill ms-1" style="font-size: 8px;"></i>
+                </a>
+            </div>
+
+            <a href="{% url 'marketplace:crear_producto' %}" class="nav-link fw-bold px-2 py-1" style="color: #febd69 !important; border: 1px solid #febd69; border-radius: 4px;">
+                <span class="me-1" style="font-size: 16px;">+</span> Vender
+            </a>
+
+            <a href="#" class="nav-link text-white fw-bold">Compra / Venta</a>
+
+            <a href="{% url 'marketplace:perfil' %}" class="nav-link text-white fw-bold">Mi Perfil</a>
+
+           {% if user.is_authenticated %}
+            <div class="nav-item dropdown ms-3">
+                <a class="nav-link text-white fw-bold d-flex align-items-center p-0" href="#" data-bs-toggle="dropdown" style="width: fit-content;">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center justify-content-end">
+                            <span style="font-size: 10px; font-weight: normal; color: #ccc; margin-right: 5px;">Hola, {{ user.username }}</span>
+                            <span style="height: 6px; width: 6px; background-color: #28a745; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px #28a745;"></span>
+                        </div>
+                        <div class="text-end" style="margin-top: -2px;">
+                            <span style="font-size: 11px; letter-spacing: 0.2px;">Sesión Activa <i class="bi bi-caret-down-fill" style="font-size: 8px;"></i></span>
+                        </div>
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm mt-2" style="font-size: 13px;">
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger fw-bold">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4 flex-grow-1">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<footer class="text-center py-4 footer-amazon border-top">
+    <div class="container">
+        <small>&copy; 2026 Framazon Marketplace - Proyecto de Portafolio</small>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

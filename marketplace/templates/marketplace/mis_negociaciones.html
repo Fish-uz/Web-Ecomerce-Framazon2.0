@@ -1,0 +1,45 @@
+{% extends 'marketplace/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="fw-bold mb-4">Mi Actividad</h2>
+
+    <div class="row">
+        <div class="col-md-6 border-end">
+            <h5 class="text-muted mb-3"><i class="bi bi-bag-check me-2"></i>Productos que estoy comprando</h5>
+            {% for c in compras %}
+                <div class="card mb-3 shadow-sm border-0 rounded-3 p-3">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ c.producto.imagen_principal.url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">{{ c.producto.nombre }}</h6>
+                            <p class="small text-muted mb-0">Vendedor: {{ c.vendedor.username }}</p>
+                        </div>
+                        <a href="{% url 'marketplace:chat' c.id %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">Ver Chat</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No has mostrado interés en ningún producto aún.</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-6 ps-md-4">
+            <h5 class="text-muted mb-3"><i class="bi bi-tags me-2"></i>Gente interesada en mis productos</h5>
+            {% for v in ventas %}
+                <div class="card mb-3 shadow-sm border-0 rounded-3 p-3">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ v.producto.imagen_principal.url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">{{ v.producto.nombre }}</h6>
+                            <p class="small text-muted mb-0">Interesado: {{ v.comprador.username }}</p>
+                        </div>
+                        <a href="{% url 'marketplace:chat' v.id %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Atender</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nadie ha preguntado por tus productos todavía.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

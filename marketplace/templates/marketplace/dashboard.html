@@ -1,0 +1,54 @@
+{% extends 'marketplace/base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <h2 class="fw-bold mb-4">Centro de Compra / Venta</h2>
+
+    <div class="col-md-6 border-end">
+        <h5 class="text-muted mb-3">Mis Compras (Productos que me interesan)</h5>
+        {% for c in compras %}
+        <div class="card mb-3 border-0 shadow-sm rounded-4 p-2">
+            <div class="d-flex align-items-center">
+                <img src="{{ c.producto.imagen_principal.url }}" style="width: 80px; height: 80px; object-fit: contain;" class="me-3">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold">{{ c.producto.nombre }}</h6>
+                    <p class="small text-muted mb-1">Vendedor: {{ c.vendedor.username }}</p>
+                    <span class="badge {% if c.estado == 'abierta' %}bg-primary{% elif c.estado == 'vendida' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ c.get_estado_display }}
+                    </span>
+                </div>
+                <a href="{% url 'marketplace:chat' c.id %}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3">Ir al Chat</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Aún no has preguntado por ningún producto.</p>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6 ps-md-4">
+        <h5 class="text-muted mb-3">Mis Ventas (Gente que quiere mis productos)</h5>
+        {% for v in ventas %}
+        <div class="card mb-3 border-0 shadow-sm rounded-4 p-2">
+            <div class="d-flex align-items-center">
+                <img src="{{ v.producto.imagen_principal.url }}" style="width: 80px; height: 80px; object-fit: contain;" class="me-3">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold">{{ v.producto.nombre }}</h6>
+                    <p class="small text-muted mb-1">Comprador: {{ v.comprador.username }}</p>
+                    <span class="badge {% if v.estado == 'abierta' %}bg-primary{% elif v.estado == 'vendida' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ v.get_estado_display }}
+                    </span>
+                </div>
+                <div class="text-end">
+                    <a href="{% url 'marketplace:chat' v.id %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 mb-1">Chat</a>
+                    {% if v.estado == 'abierta' %}
+                        <a href="{% url 'marketplace:finalizar' v.id 'vendido' %}" class="btn btn-success btn-sm rounded-pill px-3">Confirmar Venta</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Nadie ha preguntado por tus productos todavía.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'marketplace/base.html' %}
+
+{% block content %}
+<div class="row">
+    <aside class="col-md-2">
+        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+            <h6 class="fw-bold mb-3">Categorías</h6>
+            <ul class="list-unstyled">
+                <li class="mb-2">
+                    <a href="{% url 'marketplace:index' %}" class="text-decoration-none {% if not cat_actual %}text-white bg-primary{% else %}text-muted{% endif %} d-block p-2 rounded small">Todas</a>
+                </li>
+                <li class="mb-2">
+                    <a href="{% url 'marketplace:index' %}?categoria=electronica" class="text-decoration-none {% if cat_actual == 'electronica' %}text-primary fw-bold{% else %}text-muted{% endif %} small px-2">Electrónica</a>
+                </li>
+                <li class="mb-2">
+                    <a href="{% url 'marketplace:index' %}?categoria=computacion" class="text-decoration-none {% if cat_actual == 'computacion' %}text-primary fw-bold{% else %}text-muted{% endif %} small px-2">Computación</a>
+                </li>
+                </ul>
+        </div>
+    </aside>
+
+    <main class="col-md-10">
+        <h4 class="fw-bold mb-4">Nuestros Productos</h4>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for p in productos %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-2">
+                    <div class="text-center p-2" style="height: 180px;">
+                        <img src="{{ p.imagen_principal.url }}" class="img-fluid h-100" style="object-fit: contain;" alt="{{ p.nombre }}">
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-1 text-truncate">{{ p.nombre }}</p>
+                        <h5 class="text-danger fw-bold mb-3">$ {{ p.precio }}</h5>
+                        <a href="{% url 'marketplace:product_detail' p.id %}" class="btn btn-warning rounded-pill w-100 btn-sm fw-bold">
+                            Ver detalles
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}
