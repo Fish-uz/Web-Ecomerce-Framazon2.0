@@ -1,56 +1,135 @@
 {% extends 'marketplace/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row bg-white p-4 rounded-3 shadow-sm">
-        <div class="col-md-5 text-center border-end">
-            <img src="{{ producto.imagen_principal.url }}" id="mainImg" class="img-fluid mb-3" style="max-height: 400px; object-fit: contain;">
-            
-            <div class="d-flex justify-content-center gap-2 mt-2">
-                <img src="{{ producto.imagen_principal.url }}" class="img-thumbnail thumb-gallery" style="width: 60px; cursor: pointer;" onclick="changeImg(this.src)">
-                {% for img in imagenes_extra %}
-                    <img src="{{ img.imagen.url }}" class="img-thumbnail thumb-gallery" style="width: 60px; cursor: pointer;" onclick="changeImg(this.src)">
-                {% endfor %}
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-7 col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                <div class="main-image-container text-center mb-3 position-relative" style="height: 450px;">
+                    <img id="main-product-view" src="{{ producto.imagen_principal.url }}" 
+                         class="img-fluid h-100 rounded-3 shadow-sm" 
+                         style="object-fit: contain;" alt="{{ producto.nombre }}">
+                </div>
+
+                {% if imagenes_extra %}
+                <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap" id="thumbnail-gallery">
+                    <div class="thumb-box active rounded-2 overflow-hidden border border-2 border-warning" 
+                         style="width: 70px; height: 70px; cursor: pointer;">
+                        <img src="{{ producto.imagen_principal.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
+                    </div>
+                    
+                    {% for img in imagenes_extra %}
+                    <div class="thumb-box rounded-2 overflow-hidden border border-1 border-light" 
+                         style="width: 70px; height: 70px; cursor: pointer;">
+                        <img src="{{ img.imagen.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
         </div>
 
-        <div class="col-md-7 ps-md-5">
-            <h2 class="fw-bold">{{ producto.nombre }}</h2>
-            <p class="text-muted small">Vendedor: <span class="text-info">{{ producto.vendedor.username }}</span></p>
-            <hr>
-            
-            <h3 class="text-danger fw-bold">${{ producto.precio }}</h3>
-            <p class="mt-4">{{ producto.descripcion }}</p>
-            
-            <div class="card p-3 mt-4 border-secondary bg-light" style="max-width: 300px;">
-                <h6 class="fw-bold {% if producto.stock > 0 %}text-success{% else %}text-danger{% endif %}">
-                    {% if producto.stock > 0 %}En stock{% else %}Agotado{% endif %}
-                </h6>
-                <p class="small mb-3">Vendido por <strong>{{ producto.vendedor.username }}</strong></p>
-                
-                {% if user.is_authenticated %}
-                    {% if user != producto.vendedor %}
-                        <a href="{% url 'marketplace:iniciar_contacto' producto.id %}" class="btn btn-warning w-100 rounded-pill fw-bold mb-2 shadow-sm">
-                            Comprar / Contactar
+        <div class="col-md-5 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <span class="badge bg-light text-muted rounded-pill mb-3 small w-auto align-self-start">{{ producto.categoria.nombre }}</span>
+                <h1 class="fw-bold mb-2 fs-2">{{ producto.nombre }}</h1>
+                <p class="text-muted small mb-4">Vendedor: <span class="fw-semibold text-dark">{{ producto.vendedor.username }}</span></p>
+
+                <div class="d-flex align-items-center mb-4">
+                    <h2 class="text-danger fw-bold fs-1 mb-0">$ {{ producto.precio }}</h2>
+                    <span class="ms-3 text-success small fw-semibold">
+                        <i class="bi bi-box-seam me-1"></i> Stock: {{ producto.stock }} disponibles
+                    </span>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-dark">Descripción:</h6>
+                    <p class="text-muted small" style="line-height: 1.6;">{{ producto.descripcion|linebreaksbr }}</p>
+                </div>
+
+                <hr class="text-muted opacity-25">
+
+                <div class="d-grid gap-2 mt-4">
+                    {% if producto.vendedor != request.user %}
+                        {% if producto.stock > 0 and not producto.esta_pausado %}
+                        <a href="{% url 'marketplace:iniciar_contacto' producto.id %}" class="btn btn-warning rounded-pill fw-bold">
+                            Contactar al Vendedor
                         </a>
+                        <button class="btn btn-outline-secondary btn-lg rounded-pill fw-bold">
+                            <i class="bi bi-heart me-2"></i> Añadir a Favoritos
+                        </button>
+                        {% elif producto.esta_pausado %}
+                        <div class="alert alert-warning text-center small rounded-pill border-0">
+                            <i class="bi bi-pause-circle me-1"></i> Esta publicación está pausada.
+                        </div>
+                        {% else %}
+                        <div class="alert alert-danger text-center small rounded-pill border-0">
+                            <i class="bi bi-x-circle me-1"></i> Producto agotado.
+                        </div>
+                        {% endif %}
                     {% else %}
-                        <button class="btn btn-secondary w-100 rounded-pill fw-bold" disabled>Es tu producto</button>
+                        <div class="alert alert-light text-center small rounded-3 border">
+                            <i class="bi bi-info-circle me-1"></i> Este es tu producto. Puedes gestionarlo desde tu panel.
+                        </div>
+                        <a href="{% url 'marketplace:perfil' %}" class="btn btn-warning rounded-pill fw-bold btn-sm">Ir a mi panel</a>
                     {% endif %}
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-warning w-100 rounded-pill fw-bold">Ingresa para comprar</a>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-function changeImg(src) {
-    document.getElementById('mainImg').src = src;
-}
-</script>
-
 <style>
-    .thumb-gallery:hover { border-color: #ff9900 !important; }
+    /* Efecto Amazon: Borde amarillo en la miniatura activa */
+    .thumb-box {
+        transition: all 0.2s ease-in-out;
+        opacity: 0.7;
+    }
+    .thumb-box:hover {
+        opacity: 1;
+        border-color: #ffc107 !important;
+        transform: scale(1.05);
+    }
+    .thumb-box.active {
+        opacity: 1;
+        border-color: #ffc107 !important; /* Amarillo Amazon */
+        border-width: 2px !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .main-image-container img {
+        transition: opacity 0.3s ease-in-out;
+    }
 </style>
+
+<script>
+    // Lógica del Carrusel
+    document.addEventListener("DOMContentLoaded", function() {
+        const mainView = document.getElementById('main-product-view');
+        const thumbs = document.querySelectorAll('.thumb-box');
+
+        thumbs.forEach(thumb => {
+            // Usamos 'click', pero 'mouseover' también funciona si prefieres el estilo de Amazon
+            thumb.addEventListener('click', function() {
+                // 1. Obtener la URL de la miniatura clicada
+                const newImgUrl = this.querySelector('img').src;
+                
+                // 2. Transición suave de opacidad
+                mainView.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // 3. Cambiar la imagen principal
+                    mainView.src = newImgUrl;
+                    mainView.style.opacity = 1;
+                }, 150);
+
+                // 4. Actualizar la miniatura 'activa' (borde amarillo)
+                thumbs.forEach(t => t.classList.remove('active', 'border-warning', 'border-2'));
+                thumbs.forEach(t => t.classList.add('border-light', 'border-1'));
+                
+                this.classList.add('active', 'border-warning', 'border-2');
+                this.classList.remove('border-light', 'border-1');
+            });
+        });
+    });
+</script>
 {% endblock %}

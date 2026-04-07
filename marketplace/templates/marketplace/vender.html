@@ -13,70 +13,69 @@
                 <form method="POST" enctype="multipart/form-data" id="product-form">
                     {% csrf_token %}
                     
-                    <div class="row g-3">
-                        <div class="col-md-12 mb-2">
-                            <label class="form-label fw-bold small">Nombre del producto</label>
-                            {{ form.nombre }}
-                        </div>
-                        <div class="col-md-12 mb-2">
-                            <label class="form-label fw-bold small">Categoría</label>
-                            {{ form.categoria }}
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-4 mb-4">
-                        <label class="form-label fw-bold small">Fotos del producto <span class="text-muted fw-normal">(Máx. 5 adicionales)</span></label>
-                        
-                        <div class="d-flex flex-wrap gap-2" id="image-gallery">
-                            <div class="image-slot border rounded d-flex align-items-center justify-content-center position-relative bg-light border-warning border-2" 
-                                 id="main-slot" style="width: 120px; height: 120px; cursor: pointer; overflow: hidden; transition: 0.3s;">
-                                <div class="text-center" id="main-icon-container">
-                                    <span class="fs-4 text-muted">+</span><br>
-                                    <small class="text-warning fw-bold" style="font-size: 10px;">PRINCIPAL</small>
-                                </div>
-                                <img id="main-preview-img" src="#" class="preview-img d-none w-100 h-100" style="object-fit: cover; position: absolute; top:0; left:0;">
-                            </div>
-
-                            <div class="image-slot border rounded d-flex align-items-center justify-content-center bg-light" 
-                                 id="add-more-btn" style="width: 85px; height: 85px; cursor: pointer; transition: 0.3s;">
-                                <span class="fs-4 text-muted">+</span>
-                            </div>
-                        </div>
-                        <small class="text-muted mt-2 d-block" style="font-size: 11px;">Haz clic en los cuadros para subir tus fotos.</small>
-                    </div>
-
-                    <div style="display: none !important;">
-                        {{ form.imagen_principal }}
-                        {{ form.fotos_adicionales }}
-                    </div>
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">Descripción</label>
-                        {{ form.descripcion }}
+                        <label class="form-label fw-bold small">Nombre del producto</label>
+                        {{ form.nombre }}
                     </div>
 
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small">Precio (USD)</label>
                             {{ form.precio }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small">Stock inicial</label>
                             {{ form.stock }}
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">Email contacto</label>
-                        {{ form.email_contacto }}
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-bold small">Teléfono contacto</label>
-                        {{ form.telefono_contacto }}
+                        <label class="form-label fw-bold small">Categoría</label>
+                        {{ form.categoria }}
                     </div>
 
-                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold rounded-pill shadow-sm">
-                        Subir a Framazon 2.0
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small">Fotos del producto <span class="text-muted fw-normal">(Máx. 5 adicionales)</span></label>
+                        <div class="d-flex flex-wrap gap-2" id="image-gallery">
+                            
+                            <div class="image-slot border rounded d-flex align-items-center justify-content-center position-relative bg-light border-warning border-2" 
+                                 id="main-slot-visual" style="width: 110px; height: 110px; cursor: pointer; overflow: hidden;">
+                                <div class="text-center" id="main-placeholder">
+                                    <i class="bi bi-camera fs-3 text-muted"></i><br>
+                                    <small class="text-warning fw-bold" style="font-size: 9px;">PRINCIPAL</small>
+                                </div>
+                                <img id="main-preview" src="#" class="d-none w-100 h-100" style="object-fit: cover; position: absolute;">
+                            </div>
+
+                            <div class="image-slot border rounded d-flex align-items-center justify-content-center bg-light" 
+                                 id="add-plus-visual" style="width: 85px; height: 85px; cursor: pointer;">
+                                <span class="fs-2 text-muted">+</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: none !important;">
+                        {{ form.imagen_principal }}
+                        {{ form.extra_imgs }} </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Descripción</label>
+                        {{ form.descripcion }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Email contacto</label>
+                            {{ form.email_contacto }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Teléfono contacto</label>
+                            {{ form.telefono_contacto }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold rounded-pill shadow-sm mt-3">
+                        Publicar ahora
                     </button>
                 </form>
             </div>
@@ -85,43 +84,60 @@
 </div>
 
 <style>
-    /* Estética Framazon 2.0 */
-    input, select, textarea { display: block; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #dee2e6; border-radius: 0.5rem; font-size: 14px; }
-    input:focus { border-color: #ffc107; outline: 0; box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.25); }
-    
-    .image-slot:hover { border-color: #ffc107 !important; transform: scale(1.02); }
-    .preview-img { z-index: 5; }
-    .d-none { display: none !important; }
+    .image-slot:hover { border-color: #ff9900 !important; background-color: #fffaf0 !important; }
+    .extra-small { font-size: 0.75rem; }
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const btnPlus = document.getElementById('btn-plus'); // Tu botón visual +
-        const inputExtra = document.querySelector('input[name="extra_imgs"]'); // El nombre real en forms.py
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Manejo de Foto Principal
+    const mainSlot = document.getElementById('main-slot-visual');
+    const inputPrincipal = document.querySelector('input[name="imagen_principal"]');
+    
+    if (mainSlot && inputPrincipal) {
+        mainSlot.addEventListener('click', () => inputPrincipal.click());
+        inputPrincipal.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById('main-preview');
+                    img.src = e.target.result;
+                    img.classList.remove('d-none');
+                    document.getElementById('main-placeholder').classList.add('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
 
-        if (btnPlus && inputExtra) {
-            btnPlus.onclick = function() {
-                inputExtra.click(); // ¡Ahora sí lo encontrará!
-            };
+    // 2. Manejo de Fotos Adicionales (EL BOTÓN +)
+    const btnPlus = document.getElementById('add-plus-visual');
+    const inputExtra = document.querySelector('input[name="extra_imgs"]'); // Nombre exacto de tu forms.py
+    const gallery = document.getElementById('image-gallery');
 
-            inputExtra.onchange = function() {
-                const gallery = document.getElementById('image-gallery');
-                // Limpiar previas viejas
-                document.querySelectorAll('.extra-preview').forEach(el => el.remove());
+    if (btnPlus && inputExtra) {
+        btnPlus.addEventListener('click', function(e) {
+            e.preventDefault();
+            inputExtra.click();
+        });
 
-                Array.from(this.files).slice(0, 5).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const div = document.createElement('div');
-                        div.className = "image-slot border rounded extra-preview";
-                        div.style = "width: 85px; height: 85px; overflow: hidden; position: relative; background: #f8f9fa;";
-                        div.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit: cover;">`;
-                        gallery.insertBefore(div, btnPlus);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            };
-        }
-    });
+        inputExtra.addEventListener('change', function() {
+            // Limpiar previas de fotos adicionales anteriores
+            document.querySelectorAll('.extra-preview-slot').forEach(el => el.remove());
+            
+            Array.from(this.files).slice(0, 5).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-slot border rounded extra-preview-slot';
+                    div.style = "width: 85px; height: 85px; overflow: hidden; position: relative;";
+                    div.innerHTML = `<img src="${e.target.result}" class="w-100 h-100" style="object-fit: cover;">`;
+                    gallery.insertBefore(div, btnPlus);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    }
+});
 </script>
 {% endblock %}

@@ -9,7 +9,7 @@ from .forms import ProductForm
 
 def index(request):
     query = request.GET.get('q')
-    cat_filter = request.GET.get('categoria') # Capturamos la categoría de la URL
+    cat_filter = request.GET.get('categoria') 
     
     productos = Product.objects.filter(stock__gt=0, esta_pausado=False)
     
@@ -27,7 +27,6 @@ def index(request):
 
 def product_detail(request, product_id):
     producto = get_object_or_404(Product, id=product_id)
-    # Obtenemos las imágenes de la galería para el carrusel/detalles
     imagenes_extra = producto.imagenes.all() 
     return render(request, 'marketplace/product_detail.html', {
         'producto': producto,
@@ -51,8 +50,6 @@ def registro(request):
 @login_required
 def perfil(request):
     mis_productos = Product.objects.filter(vendedor=request.user)
-    
-    # Compras que yo hice y que ya se cerraron
     compras_finalizadas = Negotiation.objects.filter(comprador=request.user, estado='vendida')
     
     return render(request, 'marketplace/perfil.html', {
@@ -70,25 +67,40 @@ def crear_producto(request):
             nuevo_prod.vendedor = request.user
             nuevo_prod.save()
 
-            # Lógica para guardar las fotos múltiples de la galería
             images = request.FILES.getlist('extra_imgs')
-            for img in images[:5]: # Límite de 5 fotos
+            for img in images[:5]:
                 ProductImage.objects.create(producto=nuevo_prod, imagen=img)
                 
-            return redirect('marketplace:perfil')
+            # CAMBIO: Redirige directo a tu perfil para ver tus publicaciones
+            return redirect('/perfil/#publicaciones')
     else:
-        # Pre-llenamos datos de contacto si existen
-        form = ProductForm(initial={
-            'email_contacto': request.user.email,
-        })
+        form = ProductForm(initial={'email_contacto': request.user.email})
     return render(request, 'marketplace/vender.html', {'form': form})
+
+# NUEVA VISTA: Para que el botón "Editar" funcione
+@login_required
+def editar_producto(request, product_id):
+    producto = get_object_or_404(Product, id=product_id, vendedor=request.user)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            # Si subió fotos nuevas en la edición
+            images = request.FILES.getlist('extra_imgs')
+            if images:
+                producto.imagenes.all().delete() # Opcional: Limpia las viejas
+                for img in images[:5]:
+                    ProductImage.objects.create(producto=producto, imagen=img)
+            return redirect('/perfil/#publicaciones')
+    else:
+        form = ProductForm(instance=producto)
+    return render(request, 'marketplace/vender.html', {'form': form, 'editando': True})
 
 @login_required
 def iniciar_contacto(request, product_id):
     producto = get_object_or_404(Product, id=product_id)
     if producto.vendedor == request.user:
         return redirect('marketplace:index')
-    
     neg, created = Negotiation.objects.get_or_create(
         producto=producto, comprador=request.user, vendedor=producto.vendedor
     )
@@ -101,64 +113,64 @@ def chat(request, negociacion_id):
         contenido = request.POST.get('msg')
         if contenido:
             Message.objects.create(negociacion=neg, emisor=request.user, contenido=contenido)
-    
     mensajes = neg.mensajes.all().order_by('enviado')
     return render(request, 'marketplace/chat.html', {'neg': neg, 'mensajes': mensajes})
 
 @login_required
 def mis_negociaciones(request):
-    # Unificamos la vista de Compra / Venta
     mis_compras = Negotiation.objects.filter(comprador=request.user).order_by('-creada')
     mis_ventas = Negotiation.objects.filter(vendedor=request.user).order_by('-creada')
-    
-    return render(request, 'marketplace/mis_negociaciones.html', {
-        'compras': mis_compras,
-        'ventas': mis_ventas
-    })
+    return render(request, 'marketplace/mis_negociaciones.html', {'compras': mis_compras, 'ventas': mis_ventas})
 
 @login_required
 def finalizar_negociacion(request, neg_id, accion):
-    # Buscamos la negociación donde el usuario actual es el vendedor
     neg = get_object_or_404(Negotiation, id=neg_id, vendedor=request.user)
     producto = neg.producto
-
     if accion == 'vendido':
         neg.estado = 'vendida'
-        # Verificamos que haya stock antes de descontar
         if producto.stock > 0:
-            producto.stock -= 1  # Aquí descontamos 1 unidad por venta
-            
-            # Si se acabó el stock, marcamos el producto como vendido globalmente
+            producto.stock -= 1
             if producto.stock == 0:
                 producto.es_vendido = True
-            
             producto.save()
     else:
         neg.estado = 'cancelada'
-    
     neg.save()
-    # Redirigimos a la pestaña de Mis Ventas para ver el cambio
     return redirect('marketplace:mis_negociaciones')
 
 @login_required
 def cambiar_estado_producto(request, product_id, accion):
     producto = get_object_or_404(Product, id=product_id, vendedor=request.user)
-    
     if accion == 'pausar':
-        producto.esta_pausado = not producto.esta_pausado # Si está activo lo pausa, y viceversa
+        producto.esta_pausado = not producto.esta_pausado
     elif accion == 'vendido':
         if producto.stock > 0:
-            producto.stock -= 1 # Baja el stock en 1
+            producto.stock -= 1
             if producto.stock == 0:
                 producto.es_vendido = True
-    
     producto.save()
     return redirect('marketplace:perfil')
 
 @login_required
 def pausar_producto(request, product_id):
     producto = get_object_or_404(Product, id=product_id, vendedor=request.user)
-    # Cambia de True a False o viceversa
     producto.esta_pausado = not producto.esta_pausado
     producto.save()
-    return redirect('marketplace:perfil')
+    return redirect('/perfil/#publicaciones')
+
+def mensajes_pendientes(request):
+    if request.user.is_authenticated:
+        # Contamos negociaciones donde el último mensaje NO sea del usuario actual
+        # (Para hacerlo simple: contamos negociaciones activas en las que participas)
+        count = Negotiation.objects.filter(
+            estado='en_progreso'
+        ).filter(
+            comprador=request.user
+        ).count() + Negotiation.objects.filter(
+            estado='en_progreso'
+        ).filter(
+            vendedor=request.user
+        ).count()
+        
+        return {'notificaciones_chat': count}
+    return {'notificaciones_chat': 0}

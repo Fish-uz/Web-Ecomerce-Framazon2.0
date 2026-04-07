@@ -15,7 +15,7 @@
                 <li class="mb-2">
                     <a href="{% url 'marketplace:index' %}?categoria=computacion" class="text-decoration-none {% if cat_actual == 'computacion' %}text-primary fw-bold{% else %}text-muted{% endif %} small px-2">Computación</a>
                 </li>
-                </ul>
+            </ul>
         </div>
     </aside>
 
@@ -24,21 +24,38 @@
         <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for p in productos %}
             <div class="col">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-2">
-                    <div class="text-center p-2" style="height: 180px;">
-                        <img src="{{ p.imagen_principal.url }}" class="img-fluid h-100" style="object-fit: contain;" alt="{{ p.nombre }}">
+                <a href="{% url 'marketplace:product_detail' p.id %}" class="text-decoration-none text-dark card-link">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-2 product-card">
+                        <div class="text-center p-2" style="height: 180px;">
+                            <img src="{{ p.imagen_principal.url }}" class="img-fluid h-100" style="object-fit: contain;" alt="{{ p.nombre }}">
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted mb-1 text-truncate">{{ p.nombre }}</p>
+                            <h5 class="text-danger fw-bold mb-3">$ {{ p.precio }}</h5>
+                            <button class="btn btn-warning rounded-pill w-100 btn-sm fw-bold shadow-sm">
+                                Ver detalles
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p class="small text-muted mb-1 text-truncate">{{ p.nombre }}</p>
-                        <h5 class="text-danger fw-bold mb-3">$ {{ p.precio }}</h5>
-                        <a href="{% url 'marketplace:product_detail' p.id %}" class="btn btn-warning rounded-pill w-100 btn-sm fw-bold">
-                            Ver detalles
-                        </a>
-                    </div>
-                </div>
+                </a>
             </div>
             {% endfor %}
         </div>
     </main>
 </div>
+
+<style>
+    /* Efecto Amazon: La tarjeta se levanta un poco al pasar el mouse */
+    .product-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .card-link {
+        display: block;
+        height: 100%;
+    }
+</style>
 {% endblock %}

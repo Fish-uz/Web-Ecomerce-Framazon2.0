@@ -17,7 +17,6 @@
         .navbar-amazon { background-color: #131921; min-height: 60px; }
         .footer-amazon { background-color: #131921; color: white; }
         
-        /* Logo corregido: F en blanco, R en naranja */
         .navbar-brand-framazon {
             font-weight: 800;
             font-size: 1.5rem;
@@ -54,42 +53,54 @@
 
         <div class="d-flex align-items-center gap-4 ms-auto" style="font-size: 13px;">
             
-            <div class="nav-item">
+            <div class="nav-item d-none d-md-block">
                 <a class="nav-link text-white fw-bold d-flex align-items-center" href="#">
                     <i class="bi bi-globe me-1"></i> ES <i class="bi bi-caret-down-fill ms-1" style="font-size: 8px;"></i>
                 </a>
             </div>
 
-            <a href="{% url 'marketplace:crear_producto' %}" class="nav-link fw-bold px-2 py-1" style="color: #febd69 !important; border: 1px solid #febd69; border-radius: 4px;">
-                <span class="me-1" style="font-size: 16px;">+</span> Vender
-            </a>
-
-            <a href="#" class="nav-link text-white fw-bold">Compra / Venta</a>
-
-            <a href="{% url 'marketplace:perfil' %}" class="nav-link text-white fw-bold">Mi Perfil</a>
-
-           {% if user.is_authenticated %}
-            <div class="nav-item dropdown ms-3">
-                <a class="nav-link text-white fw-bold d-flex align-items-center p-0" href="#" data-bs-toggle="dropdown" style="width: fit-content;">
-                    <div class="d-flex flex-column">
-                        <div class="d-flex align-items-center justify-content-end">
-                            <span style="font-size: 10px; font-weight: normal; color: #ccc; margin-right: 5px;">Hola, {{ user.username }}</span>
-                            <span style="height: 6px; width: 6px; background-color: #28a745; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px #28a745;"></span>
-                        </div>
-                        <div class="text-end" style="margin-top: -2px;">
-                            <span style="font-size: 11px; letter-spacing: 0.2px;">Sesión Activa <i class="bi bi-caret-down-fill" style="font-size: 8px;"></i></span>
-                        </div>
-                    </div>
+            {% if user.is_authenticated %}
+                <a href="{% url 'marketplace:crear_producto' %}" class="nav-link fw-bold px-2 py-1" style="color: #febd69 !important; border: 1px solid #febd69; border-radius: 4px;">
+                    <span class="me-1" style="font-size: 16px;">+</span> Vender
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm mt-2" style="font-size: 13px;">
-                    <li>
-                        <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-item text-danger fw-bold">Cerrar Sesión</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+
+                <a href="{% url 'marketplace:mis_negociaciones' %}" class="nav-link text-white fw-bold position-relative">
+                    Compra / Venta
+                    {% if notificaciones_chat > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                        {{ notificaciones_chat }}
+                    </span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'marketplace:perfil' %}" class="nav-link text-white fw-bold">Mi Perfil</a>
+
+                <div class="nav-item dropdown ms-3">
+                    <a class="nav-link text-white fw-bold d-flex align-items-center p-0" href="#" data-bs-toggle="dropdown" style="width: fit-content;">
+                        <div class="d-flex flex-column">
+                            <div class="d-flex align-items-center justify-content-end">
+                                <span style="font-size: 10px; font-weight: normal; color: #ccc; margin-right: 5px;">Hola, {{ user.username }}</span>
+                                <span style="height: 6px; width: 6px; background-color: #28a745; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px #28a745;"></span>
+                            </div>
+                            <div class="text-end" style="margin-top: -2px;">
+                                <span style="font-size: 11px; letter-spacing: 0.2px;">Sesión Activa <i class="bi bi-caret-down-fill" style="font-size: 8px;"></i></span>
+                            </div>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm mt-2" style="font-size: 13px;">
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger fw-bold">Cerrar Sesión</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link text-white fw-bold">Ingresar</a>
+                
+                <a href="{% url 'marketplace:registro' %}" class="nav-link fw-bold px-3 py-1" style="background-color: #f0c14b; color: #111 !important; border-radius: 4px; border: 1px solid #a88734;">
+                    Registrarse
+                </a>
             {% endif %}
         </div>
     </div>
@@ -100,7 +111,7 @@
     {% endblock %}
 </main>
 
-<footer class="text-center py-4 footer-amazon border-top">
+<footer class="text-center py-4 footer-amazon border-top mt-auto">
     <div class="container">
         <small>&copy; 2026 Framazon Marketplace - Proyecto de Portafolio</small>
     </div>
