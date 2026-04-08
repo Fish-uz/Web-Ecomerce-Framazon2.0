@@ -1,4 +1,5 @@
 import os
+from decouple import config
 from pathlib import Path
 
 # ==============================================================================
@@ -12,10 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 2. AJUSTES DE SEGURIDAD Y DESARROLLO
 # ==============================================================================
 # Clave secreta para firmar cookies y sesiones. ¡Mantener privada en producción!
-SECRET_KEY = 'django-insecure-o)ngy5m)ci+-(^^atru&7w#1=va-u@=!51m_5=485i5+cqir3l'
 
-# Activa el modo de depuración. Muestra errores detallados (True en desarrollo).
-DEBUG = True
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Dominios/IPs desde los cuales se puede acceder al sitio (vacío = localhost).
 ALLOWED_HOSTS = []

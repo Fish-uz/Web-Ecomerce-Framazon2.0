@@ -5,3 +5,4 @@ media/
 .vscode/
 *.log
 .DS_Store
+.env
