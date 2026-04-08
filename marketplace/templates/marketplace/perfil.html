@@ -13,8 +13,10 @@
                     </div>
                     <h4 class="fw-bold mb-0 text-capitalize">{{ user.username }}</h4>
                     <p class="text-muted small">Miembro desde {{ user.date_joined|date:"M Y" }}</p>
-                    <a href="#" class="btn btn-outline-secondary btn-sm rounded-pill w-100 mb-4 py-2"><i class="bi bi-gear-fill me-1"></i> Ajustes de cuenta</a>
-                   <div class="row border-top pt-3">
+                    <a href="/admin/auth/user/{{ user.id }}/change/" class="btn btn-outline-secondary btn-sm rounded-pill w-100 mb-4 py-2">
+                        <i class="bi bi-gear-fill me-1"></i> Ajustes de cuenta
+                    </a>     
+                    <div class="row border-top pt-3">
                         <div class="col-6 border-end">
                             <h5 class="fw-bold mb-0">{{ count_compras|default:"0" }}</h5>
                             <p class="text-muted extra-small">Compras</p>
@@ -152,8 +154,26 @@
                         </div>
 
                         <div class="tab-pane fade" id="ventas">
-                            <p class="text-center text-muted py-5">Aquí aparecerán los productos que hayas vendido con éxito.</p>
+                            {% if ventas_exitosas %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-borderless">
+                                        <thead><tr class="small text-muted"><th>Producto</th><th>Comprador</th><th>Total</th></tr></thead>
+                                        <tbody>
+                                            {% for v in ventas_exitosas %}
+                                            <tr class="border-bottom">
+                                                <td class="small fw-bold">{{ v.producto.nombre }}</td>
+                                                <td class="small">{{ v.comprador.username }}</td>
+                                                <td class="small text-success fw-bold">${{ v.producto.precio }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-center text-muted py-5">Aquí aparecerán los productos que hayas vendido con éxito.</p>
+                            {% endif %}
                         </div>
+
                         <div class="tab-pane fade" id="deseos">
                             <div class="text-center py-5">
                                 <i class="bi bi-heart text-muted" style="font-size: 3rem;"></i>
@@ -167,5 +187,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

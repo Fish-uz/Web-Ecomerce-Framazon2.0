@@ -47,3 +47,4 @@ class Message(models.Model):
     emisor = models.ForeignKey(User, on_delete=models.CASCADE)
     contenido = models.TextField()
     enviado = models.DateTimeField(auto_now_add=True)
+    enviado = models.DateTimeField(auto_now_add=True) # Esto registra fecha y hora exacta

@@ -1,13 +1,14 @@
 {% extends 'marketplace/base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-5">
     <h2 class="fw-bold mb-4">Mi Actividad</h2>
 
     <div class="row">
         <div class="col-md-6 border-end">
             <h5 class="text-muted mb-3"><i class="bi bi-bag-check me-2"></i>Productos que estoy comprando</h5>
             {% for c in compras %}
+                {% if c.estado == 'abierta' %}
                 <div class="card mb-3 shadow-sm border-0 rounded-3 p-3">
                     <div class="d-flex align-items-center">
                         <img src="{{ c.producto.imagen_principal.url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
@@ -15,9 +16,10 @@
                             <h6 class="mb-0 fw-bold">{{ c.producto.nombre }}</h6>
                             <p class="small text-muted mb-0">Vendedor: {{ c.vendedor.username }}</p>
                         </div>
-                        <a href="{% url 'marketplace:chat' c.id %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">Ver Chat</a>
+                        <a href="{% url 'marketplace:product_detail' c.producto.id %}?chat=abierto" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">Ver Chat</a>
                     </div>
                 </div>
+                {% endif %}
             {% empty %}
                 <p class="text-muted">No has mostrado interés en ningún producto aún.</p>
             {% endfor %}
@@ -25,7 +27,10 @@
 
         <div class="col-md-6 ps-md-4">
             <h5 class="text-muted mb-3"><i class="bi bi-tags me-2"></i>Gente interesada en mis productos</h5>
+            
+            {# 1. CHATS ACTIVOS (PENDIENTES) #}
             {% for v in ventas %}
+                {% if v.estado == 'abierta' %}
                 <div class="card mb-3 shadow-sm border-0 rounded-3 p-3">
                     <div class="d-flex align-items-center">
                         <img src="{{ v.producto.imagen_principal.url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
@@ -33,13 +38,43 @@
                             <h6 class="mb-0 fw-bold">{{ v.producto.nombre }}</h6>
                             <p class="small text-muted mb-0">Interesado: {{ v.comprador.username }}</p>
                         </div>
-                        <a href="{% url 'marketplace:chat' v.id %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Atender</a>
+                        <a href="{% url 'marketplace:product_detail' v.producto.id %}?chat=abierto&comprador={{ v.comprador.id }}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Atender</a>
                     </div>
                 </div>
+                {% endif %}
             {% empty %}
                 <p class="text-muted">Nadie ha preguntado por tus productos todavía.</p>
             {% endfor %}
+
+            {# 2. HISTORIAL DE CERRADOS (VENDIDOS/CANCELADOS) #}
+            {% if ventas %}
+                <div class="mt-5 pt-3 border-top">
+                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Historial de negociaciones</h6>
+                    {% for v in ventas %}
+                        {% if v.estado != 'abierta' %}
+                        <div class="card mb-2 border-0 rounded-3 p-2 bg-light opacity-75">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ v.producto.imagen_principal.url }}" style="width: 40px; height: 40px; object-fit: contain; filter: grayscale(100%);" class="me-3">
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 small fw-bold text-muted">{{ v.producto.nombre }}</p>
+                                    <span class="badge {% if v.estado == 'vendida' %}bg-success{% else %}bg-secondary{% endif %} extra-small py-1">
+                                        {{ v.estado|upper }}
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <p class="small text-muted mb-0">{{ v.comprador.username }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .extra-small { font-size: 0.65rem; padding: 2px 8px; border-radius: 50px; }
+</style>
 {% endblock %}

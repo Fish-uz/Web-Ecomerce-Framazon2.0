@@ -24,28 +24,55 @@
         <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for p in productos %}
             <div class="col">
-                <a href="{% url 'marketplace:product_detail' p.id %}" class="text-decoration-none text-dark card-link">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 p-2 product-card">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-2 product-card position-relative">
+                    
+                    {% if p.vendedor == request.user %}
+                    <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 shadow-sm" style="z-index: 10;">
+                        <i class="bi bi-person-fill"></i> Tu Publicacion
+                    </span>
+                    {% endif %}
+
+                    <button class="btn btn-white btn-sm rounded-circle position-absolute top-0 end-0 m-2 shadow-sm border text-danger" style="z-index: 10;">
+                        <i class="bi bi-heart"></i>
+                    </button>
+
+                    <a href="{% url 'marketplace:product_detail' p.id %}" class="text-decoration-none text-dark card-link">
                         <div class="text-center p-2" style="height: 180px;">
                             <img src="{{ p.imagen_principal.url }}" class="img-fluid h-100" style="object-fit: contain;" alt="{{ p.nombre }}">
                         </div>
                         <div class="card-body">
                             <p class="small text-muted mb-1 text-truncate">{{ p.nombre }}</p>
+                            
+                            <p class="extra-small text-muted mb-2">Vendedor: <span class="text-primary">{{ p.vendedor.username }}</span></p>
+                            
                             <h5 class="text-danger fw-bold mb-3">$ {{ p.precio }}</h5>
                             <button class="btn btn-warning rounded-pill w-100 btn-sm fw-bold shadow-sm">
                                 Ver detalles
                             </button>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
             {% endfor %}
         </div>
+
+        <nav aria-label="Navegacion" class="mt-5 d-flex justify-content-center">
+            <ul class="pagination">
+                {% if productos.has_previous %}
+                    <li class="page-item"><a class="page-item btn btn-outline-dark btn-sm rounded-pill me-2" href="?page={{ productos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if cat_actual %}&categoria={{ cat_actual }}{% endif %}">Anterior</a></li>
+                {% endif %}
+                
+                <li class="page-item active"><span class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">Página {{ productos.number }} de {{ productos.paginator.num_pages }}</span></li>
+
+                {% if productos.has_next %}
+                    <li class="page-item"><a class="page-item btn btn-outline-dark btn-sm rounded-pill ms-2" href="?page={{ productos.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if cat_actual %}&categoria={{ cat_actual }}{% endif %}">Siguiente</a></li>
+                {% endif %}
+            </ul>
+        </nav>
     </main>
 </div>
 
 <style>
-    /* Efecto Amazon: La tarjeta se levanta un poco al pasar el mouse */
     .product-card {
         transition: transform 0.2s, box-shadow 0.2s;
     }
@@ -56,6 +83,9 @@
     .card-link {
         display: block;
         height: 100%;
+    }
+    .extra-small {
+        font-size: 0.75rem;
     }
 </style>
 {% endblock %}

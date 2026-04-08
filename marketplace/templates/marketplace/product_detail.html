@@ -32,8 +32,8 @@
         <div class="col-md-5 col-lg-4 transition-all" id="col-info">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
                 <div class="d-flex justify-content-between align-items-start">
-                    <span class="badge bg-light text-warning rounded-pill mb-3 px-3 py-2 border border-warning-subtle small fw-bold">
-                        {{ producto.categoria.nombre }}
+                    <span class="badge bg-warning text-dark rounded-pill mb-3 px-3 py-2 small fw-bold">
+                        <i class="bi bi-tag-fill me-1"></i> {{ producto.categoria }}
                     </span>
                 </div>
                 
@@ -91,12 +91,31 @@
                 </div>
                 
                 <div id="chat-box" class="card-body bg-white overflow-auto p-3 d-flex flex-column" style="flex: 1;">
+                    
+                    {% if request.user == producto.vendedor and mensajes %}
+                    <div class="alert alert-light border shadow-sm rounded-4 p-3 mb-3 text-center">
+                        <p class="small fw-bold mb-2">¿Concretaste la venta?</p>
+                        <div class="d-flex gap-2">
+                            <form action="{% url 'marketplace:finalizar_negociacion' mensajes.0.negociacion.id 'vendido' %}" method="POST" class="flex-grow-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm w-100 rounded-pill fw-bold">Vendido</button>
+                            </form>
+                            <form action="{% url 'marketplace:finalizar_negociacion' mensajes.0.negociacion.id 'cancelar' %}" method="POST" class="flex-grow-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light btn-sm w-100 rounded-pill border fw-bold text-muted small">No se dio</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     {% if mensajes %}
                         {% for m in mensajes %}
-                            <div class="mb-2 d-flex {% if m.emisor == request.user %}justify-content-end{% endif %}">
-                                <div class="p-2 rounded-3 small {% if m.emisor == request.user %}bg-warning text-dark{% else %}bg-light border{% endif %}" 
-                                    style="max-width: 85%;">
-                                    {{ m.contenido }}
+                            <div class="mb-3 d-flex {% if m.emisor == request.user %}justify-content-end{% else %}justify-content-start{% endif %}">
+                                <div class="p-2 rounded-3 shadow-sm {% if m.emisor == request.user %}bg-warning text-dark{% else %}bg-light border{% endif %}" style="max-width: 85%;">
+                                    <div class="d-block">{{ m.contenido }}</div>
+                                    <div class="text-end mt-1" style="font-size: 0.7rem; opacity: 0.6;">
+                                        {{ m.enviado|date:"d/m/y" }} - {{ m.enviado|date:"g:i a" }}
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
@@ -142,14 +161,12 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- ELEMENTOS ---
         const btnAbrir = document.getElementById('btn-abrir-chat');
         const colChat = document.getElementById('col-chat');
         const colImg = document.getElementById('col-imagenes');
         const colInfo = document.getElementById('col-info');
         const chatBox = document.getElementById('chat-box');
 
-        // --- FUNCIÓN ABRIR ---
         function abrirChat() {
             colImg.classList.replace('col-md-6', 'col-md-4');
             colInfo.classList.replace('col-md-5', 'col-md-4');
@@ -158,17 +175,14 @@
                 btnAbrir.innerHTML = '<span class="spinner-grow spinner-grow-sm me-2"></span>Chat Activo';
                 btnAbrir.classList.replace('btn-warning', 'btn-light');
             }
-            // Scroll automático al último mensaje
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // --- AUTO-APERTURA SI HAY PARÁMETRO EN URL ---
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('chat') === 'abierto') {
             abrirChat();
         }
 
-        // --- CARRUSEL ---
         const mainView = document.getElementById('main-product-view');
         document.querySelectorAll('.thumb-box').forEach(thumb => {
             thumb.addEventListener('click', function() {
@@ -183,7 +197,6 @@
             });
         });
 
-        // --- EVENTOS BOTONES ---
         if(btnAbrir) {
             btnAbrir.addEventListener('click', () => {
                 abrirChat();
@@ -201,5 +214,20 @@
             }
         });
     });
+    
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('chat') === 'abierto') {
+            // Si el chat debe estar abierto, nos aseguramos de que el scroll baje al último mensaje
+            const chatContainer = document.querySelector('.chat-messages-container'); // Cambia por tu clase real
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+    });
+</script>
+
 {% endblock %}

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Framazon | Marketplace</title>
     
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -38,8 +39,9 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark p-0" style="background-color: #131921; min-height: 60px;">
     <div class="container-fluid px-3">
-        <a class="navbar-brand fw-bold me-4" href="{% url 'marketplace:index' %}" style="font-size: 20px; letter-spacing: -1px; color: white !important;">
-            FRAMAZON<span style="color: #ff9900;"></span>
+
+        <a class="navbar-brand fw-bold fs-3 ms-4" href="{% url 'marketplace:index' %}" style="letter-spacing: -1px; font-family: 'Arial', sans-serif;">
+            <span style="color: white;">F</span><span style="color: #ff9900;">r</span><span style="color: white;">amazon</span>
         </a>
 
         <div class="d-flex flex-grow-1 justify-content-center mx-4">
@@ -64,13 +66,11 @@
                     <span class="me-1" style="font-size: 16px;">+</span> Vender
                 </a>
 
-                <a href="{% url 'marketplace:mis_negociaciones' %}" class="nav-link position-relative">
+                <a class="nav-link position-relative" href="{% url 'marketplace:mis_negociaciones' %}">
                     Compra / Venta
                     {% if notificaciones_chat > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
-                            style="font-size: 0.7rem; padding: 0.35em 0.65em;">
-                            {{ notificaciones_chat }}
-                            <span class="visually-hidden">mensajes nuevos</span>
+                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                            <span class="visually-hidden">Mensajes nuevos</span>
                         </span>
                     {% endif %}
                 </a>
