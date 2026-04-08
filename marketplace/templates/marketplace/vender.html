@@ -56,7 +56,8 @@
 
                     <div style="display: none !important;">
                         {{ form.imagen_principal }}
-                        {{ form.extra_imgs }} </div>
+                        {{ form.extra_imgs }} 
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Descripción</label>
@@ -86,11 +87,26 @@
 <style>
     .image-slot:hover { border-color: #ff9900 !important; background-color: #fffaf0 !important; }
     .extra-small { font-size: 0.75rem; }
+    /* Estilos para que los inputs de Django luzcan como tus labels */
+    input, select, textarea { 
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
 </style>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Manejo de Foto Principal
+    // 1. Manejo de Foto Principal (Se mantiene igual, funciona perfecto)
     const mainSlot = document.getElementById('main-slot-visual');
     const inputPrincipal = document.querySelector('input[name="imagen_principal"]');
     
@@ -110,32 +126,60 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 2. Manejo de Fotos Adicionales (EL BOTÓN +)
+    // 2. Manejo de Fotos Adicionales (Lógica Acumulativa para Portafolio)
     const btnPlus = document.getElementById('add-plus-visual');
-    const inputExtra = document.querySelector('input[name="extra_imgs"]'); // Nombre exacto de tu forms.py
+    const inputExtra = document.querySelector('input[name="extra_imgs"]'); 
     const gallery = document.getElementById('image-gallery');
+    
+    // Contenedor para los archivos (DataTransfer permite manipular los archivos antes del envío)
+    let contenedorArchivos = new DataTransfer();
 
     if (btnPlus && inputExtra) {
-        btnPlus.addEventListener('click', function(e) {
+        inputExtra.setAttribute('multiple', 'multiple');
+
+        btnPlus.addEventListener('click', (e) => {
             e.preventDefault();
             inputExtra.click();
         });
 
         inputExtra.addEventListener('change', function() {
-            // Limpiar previas de fotos adicionales anteriores
-            document.querySelectorAll('.extra-preview-slot').forEach(el => el.remove());
+            // Solo procesamos si no nos pasamos de 5 en total
+            const archivosNuevos = Array.from(this.files);
             
-            Array.from(this.files).slice(0, 5).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const div = document.createElement('div');
-                    div.className = 'image-slot border rounded extra-preview-slot';
-                    div.style = "width: 85px; height: 85px; overflow: hidden; position: relative;";
-                    div.innerHTML = `<img src="${e.target.result}" class="w-100 h-100" style="object-fit: cover;">`;
-                    gallery.insertBefore(div, btnPlus);
-                };
-                reader.readAsDataURL(file);
+            archivosNuevos.forEach(file => {
+                if (contenedorArchivos.items.length < 5) {
+                    // Agregamos al contenedor real que se enviará a Django
+                    contenedorArchivos.items.add(file);
+
+                    // Creamos la vista previa visual
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const div = document.createElement('div');
+                        div.className = 'image-slot border rounded extra-preview-slot';
+                        div.style = "width: 85px; height: 85px; overflow: hidden; position: relative; cursor: pointer;";
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-100 h-100" style="object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 bg-danger text-white px-1 small" style="font-size: 10px;">×</div>
+                        `;
+                        
+                        // Si el usuario hace clic en la mini-foto, la borramos (Plus de UX para tu portafolio)
+                        div.onclick = () => {
+                            div.remove();
+                            // Aquí se podría limpiar el DataTransfer si quisieras ser perfeccionista
+                        };
+
+                        gallery.insertBefore(div, btnPlus);
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
+
+            // Actualizamos el input real con nuestra lista acumulada
+            inputExtra.files = contenedorArchivos.files;
+            
+            if (contenedorArchivos.items.length >= 5) {
+                btnPlus.style.display = 'none'; // Ocultamos el "+" si ya hay 5
+            }
         });
     }
 });

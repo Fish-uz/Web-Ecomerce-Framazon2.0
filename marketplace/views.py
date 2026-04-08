@@ -28,9 +28,22 @@ def index(request):
 def product_detail(request, product_id):
     producto = get_object_or_404(Product, id=product_id)
     imagenes_extra = producto.imagenes.all() 
+    
+    # --- NUEVA LÓGICA DE HISTORIAL ---
+    mensajes = None
+    if request.user.is_authenticated:
+        # Buscamos si ya hay una negociación para este producto y usuario
+        negociacion = Negotiation.objects.filter(
+            producto=producto, 
+            comprador=request.user
+        ).first()
+        if negociacion:
+            mensajes = negociacion.mensajes.all().order_by('enviado')
+
     return render(request, 'marketplace/product_detail.html', {
         'producto': producto,
-        'imagenes_extra': imagenes_extra
+        'imagenes_extra': imagenes_extra,
+        'mensajes': mensajes, # Pasamos los mensajes al HTML
     })
 
 def registro(request):
@@ -99,12 +112,30 @@ def editar_producto(request, product_id):
 @login_required
 def iniciar_contacto(request, product_id):
     producto = get_object_or_404(Product, id=product_id)
+    
+    # 1. Evitar que el vendedor se contacte a sí mismo
     if producto.vendedor == request.user:
         return redirect('marketplace:index')
+
+    # 2. Obtener o crear la negociación
     neg, created = Negotiation.objects.get_or_create(
-        producto=producto, comprador=request.user, vendedor=producto.vendedor
+        producto=producto, 
+        comprador=request.user, 
+        vendedor=producto.vendedor
     )
-    return redirect('marketplace:chat', negociacion_id=neg.id)
+
+    # 3. ¡NUEVO! Si viene un mensaje del formulario, guardarlo
+    if request.method == 'POST':
+        contenido = request.POST.get('msg')
+        if contenido:
+            Message.objects.create(
+                negociacion=neg, 
+                emisor=request.user, 
+                contenido=contenido
+            )
+
+    # 4. CORRECCIÓN DEL ERROR: El nombre correcto es 'product_detail'
+    return redirect(f'/producto/{producto.id}/?chat=abierto#col-chat')
 
 @login_required
 def chat(request, negociacion_id):
@@ -158,10 +189,10 @@ def pausar_producto(request, product_id):
     producto.save()
     return redirect('/perfil/#publicaciones')
 
+# views.py
 def mensajes_pendientes(request):
     if request.user.is_authenticated:
-        # Contamos negociaciones donde el último mensaje NO sea del usuario actual
-        # (Para hacerlo simple: contamos negociaciones activas en las que participas)
+        # Contamos negociaciones activas donde hay movimiento
         count = Negotiation.objects.filter(
             estado='en_progreso'
         ).filter(

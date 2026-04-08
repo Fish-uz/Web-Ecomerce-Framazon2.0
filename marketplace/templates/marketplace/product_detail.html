@@ -1,26 +1,26 @@
 {% extends 'marketplace/base.html' %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row">
-        <div class="col-md-7 col-lg-6 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-                <div class="main-image-container text-center mb-3 position-relative" style="height: 450px;">
+<div class="container-fluid mt-5 mb-5 px-lg-5">
+    <div class="row justify-content-center transition-all" id="main-layout-row">
+        
+        <div class="col-md-6 col-lg-5 mb-4 transition-all" id="col-imagenes">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="main-image-container text-center mb-4 position-relative" style="height: 500px;">
                     <img id="main-product-view" src="{{ producto.imagen_principal.url }}" 
-                         class="img-fluid h-100 rounded-3 shadow-sm" 
+                         class="img-fluid h-100 rounded-4 shadow-sm" 
                          style="object-fit: contain;" alt="{{ producto.nombre }}">
                 </div>
 
                 {% if imagenes_extra %}
-                <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap" id="thumbnail-gallery">
-                    <div class="thumb-box active rounded-2 overflow-hidden border border-2 border-warning" 
-                         style="width: 70px; height: 70px; cursor: pointer;">
+                <div class="d-flex justify-content-center gap-3 mt-2 flex-wrap" id="thumbnail-gallery">
+                    <div class="thumb-box active rounded-3 overflow-hidden border border-2 border-warning" 
+                         style="width: 75px; height: 75px; cursor: pointer;">
                         <img src="{{ producto.imagen_principal.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
                     </div>
-                    
                     {% for img in imagenes_extra %}
-                    <div class="thumb-box rounded-2 overflow-hidden border border-1 border-light" 
-                         style="width: 70px; height: 70px; cursor: pointer;">
+                    <div class="thumb-box rounded-3 overflow-hidden border border-1 border-light" 
+                         style="width: 75px; height: 75px; cursor: pointer;">
                         <img src="{{ img.imagen.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
                     </div>
                     {% endfor %}
@@ -29,106 +29,176 @@
             </div>
         </div>
 
-        <div class="col-md-5 col-lg-6">
-            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                <span class="badge bg-light text-muted rounded-pill mb-3 small w-auto align-self-start">{{ producto.categoria.nombre }}</span>
-                <h1 class="fw-bold mb-2 fs-2">{{ producto.nombre }}</h1>
-                <p class="text-muted small mb-4">Vendedor: <span class="fw-semibold text-dark">{{ producto.vendedor.username }}</span></p>
+        <div class="col-md-5 col-lg-4 transition-all" id="col-info">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <span class="badge bg-light text-warning rounded-pill mb-3 px-3 py-2 border border-warning-subtle small fw-bold">
+                        {{ producto.categoria.nombre }}
+                    </span>
+                </div>
+                
+                <h1 class="fw-bold mb-2 display-6 text-dark">{{ producto.nombre }}</h1>
+                <p class="text-muted mb-4"><i class="bi bi-person-circle me-1"></i> Vendedor: <span class="fw-bold text-dark">{{ producto.vendedor.username }}</span></p>
 
-                <div class="d-flex align-items-center mb-4">
-                    <h2 class="text-danger fw-bold fs-1 mb-0">$ {{ producto.precio }}</h2>
-                    <span class="ms-3 text-success small fw-semibold">
-                        <i class="bi bi-box-seam me-1"></i> Stock: {{ producto.stock }} disponibles
+                <div class="p-3 rounded-4 bg-light mb-4 border border-light-subtle">
+                    <h2 class="text-danger fw-bold display-5 mb-1">$ {{ producto.precio }}</h2>
+                    <span class="text-success small fw-bold">
+                        <i class="bi bi-check-circle-fill me-1"></i> {{ producto.stock }} unidades disponibles
                     </span>
                 </div>
 
                 <div class="mb-4">
-                    <h6 class="fw-bold text-dark">Descripción:</h6>
-                    <p class="text-muted small" style="line-height: 1.6;">{{ producto.descripcion|linebreaksbr }}</p>
+                    <h6 class="fw-bold text-secondary text-uppercase small letter-spacing-1">Descripción del producto</h6>
+                    <p class="text-muted mt-2" style="line-height: 1.8; font-size: 0.95rem;">{{ producto.descripcion|linebreaksbr }}</p>
                 </div>
 
-                <hr class="text-muted opacity-25">
+                <hr class="my-4 opacity-25">
 
-                <div class="d-grid gap-2 mt-4">
+                <div class="d-grid gap-3">
                     {% if producto.vendedor != request.user %}
                         {% if producto.stock > 0 and not producto.esta_pausado %}
-                        <a href="{% url 'marketplace:iniciar_contacto' producto.id %}" class="btn btn-warning rounded-pill fw-bold">
-                            Contactar al Vendedor
-                        </a>
-                        <button class="btn btn-outline-secondary btn-lg rounded-pill fw-bold">
-                            <i class="bi bi-heart me-2"></i> Añadir a Favoritos
+                        <button id="btn-abrir-chat" class="btn btn-warning btn-lg rounded-pill fw-bold py-3 shadow-sm border-0 transition-all hover-lift">
+                            <i class="bi bi-chat-left-text-fill me-2"></i> Contactar al Vendedor
+                        </button>
+                        
+                        <button class="btn btn-outline-secondary rounded-pill fw-bold py-2 border-2 mt-1">
+                            <i class="bi bi-heart me-2"></i> Guardar en Favoritos
                         </button>
                         {% elif producto.esta_pausado %}
-                        <div class="alert alert-warning text-center small rounded-pill border-0">
-                            <i class="bi bi-pause-circle me-1"></i> Esta publicación está pausada.
+                        <div class="alert alert-warning border-0 rounded-4 p-3 text-center mb-0">
+                            <i class="bi bi-ex-triangle-fill me-2"></i> Publicación Pausada
                         </div>
                         {% else %}
-                        <div class="alert alert-danger text-center small rounded-pill border-0">
-                            <i class="bi bi-x-circle me-1"></i> Producto agotado.
+                        <div class="alert alert-danger border-0 rounded-4 p-3 text-center mb-0">
+                            <i class="bi bi-x-octagon-fill me-2"></i> Producto Agotado
                         </div>
                         {% endif %}
                     {% else %}
-                        <div class="alert alert-light text-center small rounded-3 border">
-                            <i class="bi bi-info-circle me-1"></i> Este es tu producto. Puedes gestionarlo desde tu panel.
+                        <div class="card bg-light border-0 rounded-4 p-3 text-center">
+                            <p class="small text-muted mb-2">Este es tu anuncio</p>
+                            <a href="{% url 'marketplace:perfil' %}" class="btn btn-dark btn-sm rounded-pill fw-bold">Editar publicación</a>
                         </div>
-                        <a href="{% url 'marketplace:perfil' %}" class="btn btn-warning rounded-pill fw-bold btn-sm">Ir a mi panel</a>
                     {% endif %}
                 </div>
             </div>
         </div>
+
+        <div class="col-md-3 d-none transition-all" id="col-chat">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden sticky-top" style="top: 25px; height: 85vh; max-height: 650px;">
+                <div class="card-header bg-warning py-3 border-0 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-dark small"><i class="bi bi-chat-fill me-2"></i> NEGOCIACIÓN</span>
+                    <button type="button" class="btn-close btn-close-white small" id="btn-cerrar-chat"></button>
+                </div>
+                
+                <div id="chat-box" class="card-body bg-white overflow-auto p-3 d-flex flex-column" style="flex: 1;">
+                    {% if mensajes %}
+                        {% for m in mensajes %}
+                            <div class="mb-2 d-flex {% if m.emisor == request.user %}justify-content-end{% endif %}">
+                                <div class="p-2 rounded-3 small {% if m.emisor == request.user %}bg-warning text-dark{% else %}bg-light border{% endif %}" 
+                                    style="max-width: 85%;">
+                                    {{ m.contenido }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center my-auto opacity-50">
+                            <i class="bi bi-chat-left-dots fs-1 text-warning"></i>
+                            <p class="small mt-2">Inicia la conversación para concretar la compra.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-white p-3 border-0">
+                    <form method="POST" action="{% url 'marketplace:iniciar_contacto' producto.id %}" class="d-flex align-items-center gap-2">
+                        {% csrf_token %}
+                        <div class="position-relative flex-grow-1">
+                            <input type="text" name="msg" class="form-control rounded-pill border-0 bg-light px-4 py-2 small" 
+                                   placeholder="Escribe un mensaje..." required autocomplete="off">
+                        </div>
+                        <button type="submit" class="btn btn-warning rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="bi bi-send-fill text-white"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <style>
-    /* Efecto Amazon: Borde amarillo en la miniatura activa */
-    .thumb-box {
-        transition: all 0.2s ease-in-out;
-        opacity: 0.7;
-    }
-    .thumb-box:hover {
-        opacity: 1;
-        border-color: #ffc107 !important;
-        transform: scale(1.05);
-    }
-    .thumb-box.active {
-        opacity: 1;
-        border-color: #ffc107 !important; /* Amarillo Amazon */
-        border-width: 2px !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .main-image-container img {
-        transition: opacity 0.3s ease-in-out;
-    }
+    .letter-spacing-1 { letter-spacing: 1px; }
+    .transition-all { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    
+    #chat-box::-webkit-scrollbar { width: 5px; }
+    #chat-box::-webkit-scrollbar-thumb { background: #f1f1f1; border-radius: 10px; }
+    #chat-box::-webkit-scrollbar-thumb:hover { background: #ffc107; }
+
+    .thumb-box { transition: all 0.3s ease; opacity: 0.6; }
+    .thumb-box:hover { opacity: 1; border-color: #ffc107 !important; }
+    .thumb-box.active { opacity: 1; border-color: #ffc107 !important; transform: scale(1.05); }
 </style>
 
 <script>
-    // Lógica del Carrusel
     document.addEventListener("DOMContentLoaded", function() {
-        const mainView = document.getElementById('main-product-view');
-        const thumbs = document.querySelectorAll('.thumb-box');
+        // --- ELEMENTOS ---
+        const btnAbrir = document.getElementById('btn-abrir-chat');
+        const colChat = document.getElementById('col-chat');
+        const colImg = document.getElementById('col-imagenes');
+        const colInfo = document.getElementById('col-info');
+        const chatBox = document.getElementById('chat-box');
 
-        thumbs.forEach(thumb => {
-            // Usamos 'click', pero 'mouseover' también funciona si prefieres el estilo de Amazon
+        // --- FUNCIÓN ABRIR ---
+        function abrirChat() {
+            colImg.classList.replace('col-md-6', 'col-md-4');
+            colInfo.classList.replace('col-md-5', 'col-md-4');
+            colChat.classList.remove('d-none');
+            if(btnAbrir) {
+                btnAbrir.innerHTML = '<span class="spinner-grow spinner-grow-sm me-2"></span>Chat Activo';
+                btnAbrir.classList.replace('btn-warning', 'btn-light');
+            }
+            // Scroll automático al último mensaje
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // --- AUTO-APERTURA SI HAY PARÁMETRO EN URL ---
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('chat') === 'abierto') {
+            abrirChat();
+        }
+
+        // --- CARRUSEL ---
+        const mainView = document.getElementById('main-product-view');
+        document.querySelectorAll('.thumb-box').forEach(thumb => {
             thumb.addEventListener('click', function() {
-                // 1. Obtener la URL de la miniatura clicada
                 const newImgUrl = this.querySelector('img').src;
-                
-                // 2. Transición suave de opacidad
                 mainView.style.opacity = 0;
-                
                 setTimeout(() => {
-                    // 3. Cambiar la imagen principal
                     mainView.src = newImgUrl;
                     mainView.style.opacity = 1;
-                }, 150);
-
-                // 4. Actualizar la miniatura 'activa' (borde amarillo)
-                thumbs.forEach(t => t.classList.remove('active', 'border-warning', 'border-2'));
-                thumbs.forEach(t => t.classList.add('border-light', 'border-1'));
-                
+                }, 200);
+                document.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active', 'border-warning', 'border-2'));
                 this.classList.add('active', 'border-warning', 'border-2');
-                this.classList.remove('border-light', 'border-1');
             });
+        });
+
+        // --- EVENTOS BOTONES ---
+        if(btnAbrir) {
+            btnAbrir.addEventListener('click', () => {
+                abrirChat();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        document.getElementById('btn-cerrar-chat').addEventListener('click', () => {
+            colImg.classList.replace('col-md-4', 'col-md-6');
+            colInfo.classList.replace('col-md-4', 'col-md-5');
+            colChat.classList.add('d-none');
+            if(btnAbrir) {
+                btnAbrir.innerHTML = '<i class="bi bi-chat-left-text-fill me-2"></i> Contactar al Vendedor';
+                btnAbrir.classList.replace('btn-light', 'btn-warning');
+            }
         });
     });
 </script>

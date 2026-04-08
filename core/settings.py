@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'marketplace.views.mensajes_pendientes', # O 'marketplace.context_processors.mensajes_pendientes'
+                'marketplace.views.mensajes_pendientes',
             ],
         },
     },

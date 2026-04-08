@@ -64,12 +64,14 @@
                     <span class="me-1" style="font-size: 16px;">+</span> Vender
                 </a>
 
-                <a href="{% url 'marketplace:mis_negociaciones' %}" class="nav-link text-white fw-bold position-relative">
+                <a href="{% url 'marketplace:mis_negociaciones' %}" class="nav-link position-relative">
                     Compra / Venta
                     {% if notificaciones_chat > 0 %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
-                        {{ notificaciones_chat }}
-                    </span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                            style="font-size: 0.7rem; padding: 0.35em 0.65em;">
+                            {{ notificaciones_chat }}
+                            <span class="visually-hidden">mensajes nuevos</span>
+                        </span>
                     {% endif %}
                 </a>
                 <a href="{% url 'marketplace:perfil' %}" class="nav-link text-white fw-bold">Mi Perfil</a>
