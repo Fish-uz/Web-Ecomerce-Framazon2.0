@@ -41,8 +41,7 @@ Sigue estos pasos para ejecutar **Framazon** localmente:
 Crear y activar el entorno virtual:
 Bash
 python -m venv venv
-# En Windows:
-venv\Scripts\activate
+soruce venv\Scripts\activate
 # En Mac/Linux:
 source venv/bin/activate
 
