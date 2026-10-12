@@ -1,13 +1,13 @@
 {% extends 'marketplace/base.html' %}
 
 {% block content %}
-<div class="container-fluid mt-5 mb-5 px-lg-5">
+<div class="container-fluid mt-4 mb-5 px-lg-5 product-detail-page">
     <div class="row justify-content-center transition-all" id="main-layout-row">
         
         <div class="col-md-6 col-lg-5 mb-4 transition-all" id="col-imagenes">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                <div class="main-image-container text-center mb-4 position-relative" style="height: 500px;">
-                    <img id="main-product-view" src="{{ producto.imagen_principal.url }}" 
+                <div class="main-image-container text-center mb-3 position-relative">
+                    <img id="main-product-view" src="{{ producto.image_url }}"
                          class="img-fluid h-100 rounded-4 shadow-sm" 
                          style="object-fit: contain;" alt="{{ producto.nombre }}">
                 </div>
@@ -16,12 +16,12 @@
                 <div class="d-flex justify-content-center gap-3 mt-2 flex-wrap" id="thumbnail-gallery">
                     <div class="thumb-box active rounded-3 overflow-hidden border border-2 border-warning" 
                          style="width: 75px; height: 75px; cursor: pointer;">
-                        <img src="{{ producto.imagen_principal.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
+                        <img src="{{ producto.image_url }}" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="{{ producto.nombre }}">
                     </div>
                     {% for img in imagenes_extra %}
                     <div class="thumb-box rounded-3 overflow-hidden border border-1 border-light" 
                          style="width: 75px; height: 75px; cursor: pointer;">
-                        <img src="{{ img.imagen.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
+                        <img src="{{ img.image_url }}" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="{{ producto.nombre }}">
                     </div>
                     {% endfor %}
                 </div>
@@ -57,9 +57,15 @@
                 <div class="d-grid gap-3">
                     {% if producto.vendedor != request.user %}
                         {% if producto.stock > 0 and not producto.esta_pausado %}
-                        <button id="btn-abrir-chat" class="btn btn-warning btn-lg rounded-pill fw-bold py-3 shadow-sm border-0 transition-all hover-lift">
-                            <i class="bi bi-chat-left-text-fill me-2"></i> Contactar al Vendedor
-                        </button>
+                            {% if request.user.is_authenticated %}
+                            <button id="btn-abrir-chat" class="btn btn-warning btn-lg rounded-pill fw-bold py-3 shadow-sm border-0 transition-all hover-lift">
+                                <i class="bi bi-chat-left-text-fill me-2"></i> Contactar al Vendedor
+                            </button>
+                            {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-warning btn-lg rounded-pill fw-bold py-3 shadow-sm border-0 transition-all hover-lift">
+                                <i class="bi bi-chat-left-text-fill me-2"></i> Inicia sesión para contactar
+                            </a>
+                            {% endif %}
                         
                         <button class="btn btn-outline-secondary rounded-pill fw-bold py-2 border-2 mt-1">
                             <i class="bi bi-heart me-2"></i> Guardar en Favoritos
@@ -128,7 +134,14 @@
                 </div>
 
                 <div class="card-footer bg-white p-3 border-0">
+                    {% if negociacion and negociacion.estado == 'abierta' %}
+                    <form method="POST" action="{% url 'marketplace:chat' negociacion.id %}" class="d-flex align-items-center gap-2">
+                    {% elif not negociacion and request.user != producto.vendedor %}
                     <form method="POST" action="{% url 'marketplace:iniciar_contacto' producto.id %}" class="d-flex align-items-center gap-2">
+                    {% else %}
+                    <div class="text-center small text-muted py-2">Selecciona una negociación activa para responder.</div>
+                    {% endif %}
+                    {% if negociacion.estado == 'abierta' or request.user != producto.vendedor %}
                         {% csrf_token %}
                         <div class="position-relative flex-grow-1">
                             <input type="text" name="msg" class="form-control rounded-pill border-0 bg-light px-4 py-2 small" 
@@ -138,6 +151,9 @@
                             <i class="bi bi-send-fill text-white"></i>
                         </button>
                     </form>
+                    {% elif negociacion %}
+                    <div class="text-center small text-muted py-2">Esta negociación está {{ negociacion.get_estado_display|lower }}.</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -149,6 +165,11 @@
     .letter-spacing-1 { letter-spacing: 1px; }
     .transition-all { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    .main-image-container { height: clamp(260px, 48vh, 420px); }
+    #main-product-view { width: 100%; object-fit: contain; }
+    @media (min-width: 768px) {
+        .product-detail-page { min-height: calc(100vh - 86px); }
+    }
     
     #chat-box::-webkit-scrollbar { width: 5px; }
     #chat-box::-webkit-scrollbar-thumb { background: #f1f1f1; border-radius: 10px; }
@@ -204,7 +225,8 @@
             });
         }
 
-        document.getElementById('btn-cerrar-chat').addEventListener('click', () => {
+        const btnCerrar = document.getElementById('btn-cerrar-chat');
+        if (btnCerrar) btnCerrar.addEventListener('click', () => {
             colImg.classList.replace('col-md-4', 'col-md-6');
             colInfo.classList.replace('col-md-4', 'col-md-5');
             colChat.classList.add('d-none');

@@ -1,6 +1,9 @@
 # ==============================================================================
 # FUNCIÓN DE NOTIFICACIONES GLOBALES
 # ==============================================================================
+from .models import Negotiation
+
+
 def mensajes_pendientes(request):
     """
     Calcula el número de negociaciones activas para mostrar notificaciones 
@@ -12,17 +15,17 @@ def mensajes_pendientes(request):
     if request.user.is_authenticated:
         
         # 2. LÓGICA DE CONTEO (COMPRADOR + VENDEDOR):
-        # Filtramos las negociaciones que están en estado 'en_progreso'.
+        # Filtramos las negociaciones que siguen abiertas.
         
         # Parte A: Contamos las negociaciones donde el usuario es el COMPRADOR.
         compras_activas = Negotiation.objects.filter(
-            estado='en_progreso', 
+            estado='abierta',
             comprador=request.user
         ).count()
         
         # Parte B: Contamos las negociaciones donde el usuario es el VENDEDOR.
         ventas_activas = Negotiation.objects.filter(
-            estado='en_progreso', 
+            estado='abierta',
             vendedor=request.user
         ).count()
         

@@ -2,7 +2,7 @@
 # 1. IMPORTACIONES
 # ==============================================================================
 from django.contrib import admin  # Herramientas base del administrador de Django
-from .models import Product, Negotiation, Message  # Importamos tus modelos locales
+from .models import Product, ProductImage, Negotiation, Message
 
 # ==============================================================================
 # 2. CONFIGURACIÓN DEL MODELO 'PRODUCT' (PRODUCTOS)
@@ -10,10 +10,11 @@ from .models import Product, Negotiation, Message  # Importamos tus modelos loca
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     # Define qué columnas se verán en la tabla principal del administrador
-    list_display = ('nombre', 'precio', 'stock', 'vendedor')
+    list_display = ('nombre', 'precio', 'stock', 'categoria', 'esta_pausado', 'es_vendido', 'vendedor')
     
     # Crea una barra de búsqueda que filtra específicamente por el nombre del producto
-    search_fields = ('nombre',)
+    search_fields = ('nombre', 'vendedor__username')
+    list_filter = ('categoria', 'esta_pausado', 'es_vendido')
 
 # ==============================================================================
 # 3. CONFIGURACIÓN DEL MODELO 'NEGOTIATION' (CHATS/VENTAS)
@@ -32,3 +33,4 @@ class NegotiationAdmin(admin.ModelAdmin):
 # Registro simple: Usa la configuración por defecto de Django para ver los mensajes
 # enviados entre usuarios dentro de cada negociación.
 admin.site.register(Message)
+admin.site.register(ProductImage)

@@ -38,7 +38,7 @@
 
                     <a href="{% url 'marketplace:product_detail' p.id %}" class="text-decoration-none text-dark card-link">
                         <div class="text-center p-2" style="height: 180px;">
-                            <img src="{{ p.imagen_principal.url }}" class="img-fluid h-100" style="object-fit: contain;" alt="{{ p.nombre }}">
+                            <img src="{{ p.image_url }}" class="img-fluid h-100" style="object-fit: contain;" alt="{{ p.nombre }}">
                         </div>
                         <div class="card-body">
                             <p class="small text-muted mb-1 text-truncate">{{ p.nombre }}</p>

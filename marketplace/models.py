@@ -3,6 +3,7 @@
 # ==============================================================================
 from django.db import models              # Herramientas para crear tablas en la DB.
 from django.contrib.auth.models import User # Modelo de usuario oficial de Django.
+from django.templatetags.static import static
 
 # ==============================================================================
 # 2. MODELO DE PRODUCTO (LA ENTIDAD CENTRAL)
@@ -43,9 +44,19 @@ class Product(models.Model):
     # Registro de tiempo automático al crear el objeto
     creado = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('-creado',)
+
     def __str__(self):
         # Define cómo se muestra el objeto en el panel de admin (por su nombre)
         return self.nombre
+
+    @property
+    def image_url(self):
+        """Devuelve la foto principal o un marcador si el archivo falta."""
+        if self.imagen_principal and self.imagen_principal.storage.exists(self.imagen_principal.name):
+            return self.imagen_principal.url
+        return static('img/product-placeholder.svg')
 
 # ==============================================================================
 # 3. GALERÍA DE IMÁGENES (RELACIÓN 1 a MUCHOS)
@@ -54,6 +65,13 @@ class ProductImage(models.Model):
     # Relaciona varias fotos adicionales a un solo producto
     producto = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='imagenes')
     imagen = models.ImageField(upload_to='products/gallery/')
+
+    @property
+    def image_url(self):
+        """Evita una imagen rota si una foto de la galería fue eliminada."""
+        if self.imagen and self.imagen.storage.exists(self.imagen.name):
+            return self.imagen.url
+        return static('img/product-placeholder.svg')
 
 # ==============================================================================
 # 4. NEGOCIACIÓN (EL VÍNCULO COMPRADOR-VENDEDOR)
@@ -76,6 +94,15 @@ class Negotiation(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADOS, default='abierta')
     creada = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('producto', 'comprador'),
+                name='unique_negotiation_per_product_buyer',
+            ),
+        ]
+        ordering = ('-creada',)
+
 # ==============================================================================
 # 5. MENSAJES (EL CHAT INTERNO)
 # ==============================================================================
@@ -89,3 +116,6 @@ class Message(models.Model):
     # Contenido del texto y marca de tiempo exacta (Fecha y Hora)
     contenido = models.TextField()
     enviado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('enviado',)

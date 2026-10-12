@@ -1,6 +1,7 @@
 import os
 from decouple import config
 from pathlib import Path
+from django.contrib.messages import constants as message_constants
 
 # ==============================================================================
 # 1. CONFIGURACIÓN DE RUTAS (PATHS)
@@ -73,7 +74,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 
                 # Procesadores personalizados para el chat
-                'marketplace.views.mensajes_pendientes', # Inyecta notificaciones en todos los templates.
+                'marketplace.context_processors.mensajes_pendientes',
             ],
         },
     },
@@ -134,6 +135,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Carpeta física donde se guardan 
 # A dónde enviar al usuario después de entrar o salir del sistema.
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'marketplace:index'
+LOGIN_URL = 'login'
+
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+}
 
 
 # ==============================================================================

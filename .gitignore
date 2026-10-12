@@ -1,4 +1,6 @@
 venv/
+.venv/
+.local-deps/
 *.pyc
 __pycache__/
 media/

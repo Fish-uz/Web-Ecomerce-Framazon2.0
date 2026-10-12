@@ -11,7 +11,7 @@
                 {% if c.estado == 'abierta' %}
                 <div class="card mb-3 shadow-sm border-0 rounded-3 p-3">
                     <div class="d-flex align-items-center">
-                        <img src="{{ c.producto.imagen_principal.url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
+                        <img src="{{ c.producto.image_url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3" alt="{{ c.producto.nombre }}">
                         <div class="flex-grow-1">
                             <h6 class="mb-0 fw-bold">{{ c.producto.nombre }}</h6>
                             <p class="small text-muted mb-0">Vendedor: {{ c.vendedor.username }}</p>
@@ -33,7 +33,7 @@
                 {% if v.estado == 'abierta' %}
                 <div class="card mb-3 shadow-sm border-0 rounded-3 p-3">
                     <div class="d-flex align-items-center">
-                        <img src="{{ v.producto.imagen_principal.url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
+                        <img src="{{ v.producto.image_url }}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3" alt="{{ v.producto.nombre }}">
                         <div class="flex-grow-1">
                             <h6 class="mb-0 fw-bold">{{ v.producto.nombre }}</h6>
                             <p class="small text-muted mb-0">Interesado: {{ v.comprador.username }}</p>
@@ -54,7 +54,7 @@
                         {% if v.estado != 'abierta' %}
                         <div class="card mb-2 border-0 rounded-3 p-2 bg-light opacity-75">
                             <div class="d-flex align-items-center">
-                                <img src="{{ v.producto.imagen_principal.url }}" style="width: 40px; height: 40px; object-fit: contain; filter: grayscale(100%);" class="me-3">
+                                <img src="{{ v.producto.image_url }}" style="width: 40px; height: 40px; object-fit: contain; filter: grayscale(100%);" class="me-3" alt="{{ v.producto.nombre }}">
                                 <div class="flex-grow-1">
                                     <p class="mb-0 small fw-bold text-muted">{{ v.producto.nombre }}</p>
                                     <span class="badge {% if v.estado == 'vendida' %}bg-success{% else %}bg-secondary{% endif %} extra-small py-1">
